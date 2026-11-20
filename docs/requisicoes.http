@@ -1,0 +1,88 @@
+### Variável base
+@base = http://localhost:3000
+
+### Abrir uma NC
+POST {{base}}/nao-conformidades
+Content-Type: application/json
+
+{
+  "titulo": "Eixo fora de especificação",
+  "descricao": "Lote 4521 recebido com diâmetro 0,3 mm acima da tolerância.",
+  "fornecedor": "Metalúrgica Alfa",
+  "produto": "Eixo 20mm",
+  "responsavel": "Qualidade - Recebimento",
+  "gravidade": "ALTA"
+}
+
+### Listar todas
+GET {{base}}/nao-conformidades
+
+### Filtrar (status, gravidade, fornecedor, vencidas)
+GET {{base}}/nao-conformidades?gravidade=ALTA&fornecedor=alfa
+
+### Buscar por id
+GET {{base}}/nao-conformidades/1
+
+### Atualizar dados cadastrais (PUT = envia TODOS os campos)
+PUT {{base}}/nao-conformidades/1
+Content-Type: application/json
+
+{
+  "titulo": "Eixo fora de especificação (lote 4521)",
+  "descricao": "Lote 4521 recebido com diâmetro 0,3 mm acima da tolerância.",
+  "fornecedor": "Metalúrgica Alfa",
+  "produto": "Eixo 20mm",
+  "responsavel": "Qualidade - Recebimento",
+  "gravidade": "CRITICA"
+}
+
+### Atualizar só alguns campos (PATCH = atualização parcial)
+PATCH {{base}}/nao-conformidades/1
+Content-Type: application/json
+
+{
+  "gravidade": "CRITICA"
+}
+
+### 1) Iniciar análise
+PATCH {{base}}/nao-conformidades/1/status
+Content-Type: application/json
+
+{ "status": "EM_ANALISE" }
+
+### 2) Definir causa raiz e seguir para ação corretiva
+PATCH {{base}}/nao-conformidades/1/status
+Content-Type: application/json
+
+{
+  "status": "ACAO_CORRETIVA",
+  "causaRaiz": "Ferramenta de torneamento desgastada no fornecedor."
+}
+
+### 3) Encerrar com ação corretiva
+PATCH {{base}}/nao-conformidades/1/status
+Content-Type: application/json
+
+{
+  "status": "ENCERRADA",
+  "acaoCorretiva": "Troca da ferramenta e inspeção 100% dos próximos 3 lotes.",
+  "comentario": "Eficácia verificada no lote 4530."
+}
+
+### Cancelar (exige comentário)
+PATCH {{base}}/nao-conformidades/2/status
+Content-Type: application/json
+
+{ "status": "CANCELADA", "comentario": "Registro em duplicidade." }
+
+### Histórico de status
+GET {{base}}/nao-conformidades/1/historico
+
+### Relatório: NCs vencidas
+GET {{base}}/relatorios/vencidas
+
+### Relatório: ranking de fornecedores
+GET {{base}}/relatorios/fornecedores
+
+### Excluir (só se ABERTA)
+DELETE {{base}}/nao-conformidades/2
